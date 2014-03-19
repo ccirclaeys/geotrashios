@@ -1,0 +1,10 @@
+
+.DS_Store
+
+*.xcuserstate
+
+*.xcbkptlist
+
+BaPUA.xcodeproj/xcuserdata/dev.xcuserdatad/xcschemes/BaPUA.xcscheme
+
+BaPUA.xcodeproj/xcuserdata/dev.xcuserdatad/xcschemes/xcschememanagement.plist
