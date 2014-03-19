@@ -10,6 +10,9 @@
 #import "Reachability.h"
 
 @implementation CCHTTPAPIClient
+{
+    NSURLSession *_currentSession;
+}
 
 - (id)initWithBaseURL:(NSURL*)baseUrl
 {
@@ -52,6 +55,8 @@
 {
     NSURLSessionTask *task = nil;
     
+    [_currentSession finishTasksAndInvalidate];
+    
     if ([method isEqualToString:@"GET"])
     {
         if (params)
@@ -79,9 +84,9 @@
     if (authToken)
         [config setHTTPAdditionalHeaders:@{@"Cookie":[NSString stringWithFormat:@"auth_token=%@", authToken]}];
     
-    NSURLSession *session = [NSURLSession sessionWithConfiguration:config];
+    _currentSession = [NSURLSession sessionWithConfiguration:config];
     
-    return [session dataTaskWithURL:[self getUrlForPath:path]
+    return [_currentSession dataTaskWithURL:[self getUrlForPath:path]
             completionHandler:^(NSData *data,
                                 NSURLResponse *response,
                                 NSError *error) {
@@ -92,8 +97,6 @@
                 {
                     NSError *jsonError;
                     NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
-                    
-//                    NSLog(@"JSON = %@", dict);
                     
                     if (jsonError)
                         failure(jsonError);
@@ -106,7 +109,7 @@
 
 - (NSURLSessionTask*)request:(NSString*)requestType forPath:(NSString*)path withParams:(NSDictionary*)paramsDict successCompletionBlock:(void (^)(NSDictionary *json))success failure:(void (^)(NSError *error))failure
 {
-    NSURLSession *session = [NSURLSession sharedSession];
+    _currentSession = [NSURLSession sharedSession];
 
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[self getUrlForPath:path]
                                                            cachePolicy:NSURLRequestUseProtocolCachePolicy
@@ -129,15 +132,13 @@
     
     [request setHTTPBody:postData];
     
-    return [session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+    return [_currentSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         
         NSHTTPURLResponse *httpResp = (NSHTTPURLResponse*) response;
-        NSLog(@"Status code = %d", [httpResp statusCode]);
+      //  NSLog(@"Status code = %ld", (long)[httpResp statusCode]);
         
         NSError *jsonError;
         NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
-        
-//        NSLog(@"JSON = %@", dict);
         
         if ([requestType isEqualToString:@"POST"] && jsonError)
         {
@@ -149,7 +150,6 @@
             success(dict);
         else
         {
-            NSLog(@"Dict json = %@", dict);
             failure(error);
         }
         
@@ -157,11 +157,15 @@
 
 }
 
+/* Leak
+
 - (NSString*) decodeFromPercentEscapeString:(NSString *) string {
     return (__bridge NSString *) CFURLCreateStringByReplacingPercentEscapesUsingEncoding(NULL,
                                                                                          (__bridge CFStringRef) string,
                                                                                          CFSTR(""),
                                                                                          kCFStringEncodingUTF8);
 }
+ 
+ */
 
 @end

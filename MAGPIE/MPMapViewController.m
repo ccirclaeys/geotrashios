@@ -9,6 +9,7 @@
 #import "MPMapViewController.h"
 #import "MPWebAPIClient.h"
 #import "Trash.h"
+#import "AppDelegate.h"
 
 static CGFloat const kMetersPerMile = 1609.344;
 
@@ -19,7 +20,6 @@ static CGFloat const kMetersPerMile = 1609.344;
 @property (nonatomic, assign) BOOL isRouting;
 @property (nonatomic, strong) NSArray *overlayRouteArray;
 
-@property (nonatomic, strong) NSArray *trashArray;
 @property (nonatomic, strong) NSMutableDictionary *trashDictionary;
 
 @property (nonatomic, strong) MPTrashView *currentTrashView;
@@ -82,26 +82,34 @@ static CGFloat const kMetersPerMile = 1609.344;
 {
     MPWebAPIClient *httpClient = [MPWebAPIClient sharedClient];
     
+    [(AppDelegate *)[[UIApplication sharedApplication] delegate] setNetworkActivityIndicatorVisible:YES];
+    
+    __weak MPMapViewController *weakSelf = self;
+    
     [httpClient getTrashLocationsWithParams:nil forSuccess:^(NSDictionary *json)
     {
+        [(AppDelegate *)[[UIApplication sharedApplication] delegate] setNetworkActivityIndicatorVisible:NO];
         
         @autoreleasepool {
             
 //            NSLog(@"json = %@", json);
             
-            NSMutableArray *trashArray = [NSMutableArray array];
             for (id object in json)
             {
                 Trash *trash = [[Trash alloc] initWithJson:object];
-                [self addTrashToMap:trash];
-                [trashArray addObject:trash];
+                
+                if (![weakSelf.trashDictionary objectForKey:trash.name])
+                {
+                    [weakSelf addTrashToMap:trash];
+                    [weakSelf.trashDictionary setObject:trash forKey:trash.name];
+                }
             }
-            
-            self.trashArray = trashArray;
         }
         
     } forFailure:^(NSError *error) {
         
+        [(AppDelegate *)[[UIApplication sharedApplication] delegate] setNetworkActivityIndicatorVisible:NO];
+
         NSLog(@"error = %@", error);
     }];
 }
@@ -117,8 +125,6 @@ static CGFloat const kMetersPerMile = 1609.344;
     point.coordinate = coordinate;
     point.title = trash.name;
     [_mapView addAnnotation:point];
-    
-    [_trashDictionary setObject:trash forKey:point.title];
 }
 
 - (void)cancelRoute
@@ -211,6 +217,11 @@ static CGFloat const kMetersPerMile = 1609.344;
     return nil;
 }
 
+- (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated
+{
+    [self requestNearTrashLocations];
+}
+
 #pragma mark - MPTrashViewDelegate
 
 - (void)trashViewDidCancel:(MPTrashView*)trashView
@@ -240,41 +251,50 @@ static CGFloat const kMetersPerMile = 1609.344;
     
     MKDirections *direction = [[MKDirections alloc]initWithRequest:request];
     
+    __weak MPMapViewController *weakSelf = self;
+    
     [direction calculateDirectionsWithCompletionHandler:^(MKDirectionsResponse *response, NSError *error) {
         
         NSLog(@"response = %@",response);
         
-        _isRouting = YES;
-
-        NSArray *arrRoutes = [response routes];
-        
-        NSMutableArray *overlayRouteArray = [NSMutableArray arrayWithCapacity:arrRoutes.count];
-        
-        [arrRoutes enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        if (response)
+        {
+            _isRouting = YES;
             
-            MKRoute *rout = obj;
+            NSArray *arrRoutes = [response routes];
             
-            MKPolyline *line = [rout polyline];
-            [_mapView addOverlay:line];
-            [overlayRouteArray addObject:line];
+            NSMutableArray *overlayRouteArray = [NSMutableArray arrayWithCapacity:arrRoutes.count];
             
-            NSLog(@"Rout Name : %@",rout.name);
-            NSLog(@"Total Distance (in Meters) :%f",rout.distance);
-            
-            NSArray *steps = [rout steps];
-            
-            NSLog(@"Total Steps : %d",[steps count]);
-            
-            [steps enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-                NSLog(@"Rout Instruction : %@",[obj instructions]);
-                NSLog(@"Rout Distance : %f",[obj distance]);
+            [arrRoutes enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                
+                MKRoute *rout = obj;
+                
+                MKPolyline *line = [rout polyline];
+                [weakSelf.mapView addOverlay:line];
+                [overlayRouteArray addObject:line];
+                
+                NSLog(@"Rout Name : %@",rout.name);
+                NSLog(@"Total Distance (in Meters) :%f",rout.distance);
+                
+                NSArray *steps = [rout steps];
+                
+                NSLog(@"Total Steps : %ld",(unsigned long)[steps count]);
+                
+                [steps enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                    NSLog(@"Rout Instruction : %@",[obj instructions]);
+                    NSLog(@"Rout Distance : %f",[obj distance]);
+                }];
             }];
-        }];
-        
-        _overlayRouteArray = overlayRouteArray;
-        
-        [self addCancelButton];
-
+            
+            weakSelf.overlayRouteArray = overlayRouteArray;
+            
+            [weakSelf addCancelButton];
+        }
+        else
+        {
+            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Direction" message:@"No route found" delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil];
+            [alertView show];
+        }
     }];
     
     [_mapView deselectAnnotation:trashView.annotationView.annotation animated:NO];

@@ -19,6 +19,6 @@
 - (BOOL)isInternetConnection;
 
 - (void)requestMethod:(NSString*)method forPath:(NSString*)path forSuccess:(void (^)(NSDictionary *json))successBlock forFailure:(void (^)(NSError *error))failureBlock withParams:(id)params;
-- (NSString*)decodeFromPercentEscapeString:(NSString *)string;
+//- (NSString*)decodeFromPercentEscapeString:(NSString *)string;
 
 @end
