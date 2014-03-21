@@ -7,6 +7,7 @@
 //
 
 #import "MPMapViewController.h"
+#import "MKMapView+ZoomLevel.h"
 #import "MPWebAPIClient.h"
 #import "Trash.h"
 #import "AppDelegate.h"
@@ -23,6 +24,8 @@ static CGFloat const kMetersPerMile = 1609.344;
 @property (nonatomic, strong) NSMutableDictionary *trashDictionary;
 
 @property (nonatomic, strong) MPTrashView *currentTrashView;
+
+@property (nonatomic, assign) BOOL isInitialLocation;
 
 @end
 
@@ -62,10 +65,8 @@ static CGFloat const kMetersPerMile = 1609.344;
     _mapView.delegate = self;
     [self.view addSubview:_mapView];
     
+    _mapView.userTrackingMode = MKUserTrackingModeFollowWithHeading;
     _mapView.showsUserLocation = YES;
-    _mapView.userTrackingMode = YES;
-    
-    [self requestNearTrashLocations];
     
 	// Do any additional setup after loading the view.
 }
@@ -73,6 +74,8 @@ static CGFloat const kMetersPerMile = 1609.344;
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
+    
+    [_trashDictionary removeAllObjects];
     // Dispose of any resources that can be recreated.
 }
 
@@ -80,13 +83,25 @@ static CGFloat const kMetersPerMile = 1609.344;
 
 - (void)requestNearTrashLocations
 {
+    MKMapRect mRect = _mapView.visibleMapRect;
+    MKMapPoint eastMapPoint = MKMapPointMake(MKMapRectGetMinX(mRect), MKMapRectGetMidY(mRect));
+    MKMapPoint westMapPoint = MKMapPointMake(MKMapRectGetMaxX(mRect), MKMapRectGetMidY(mRect));
+    
+    CLLocationDistance distance = MKMetersBetweenMapPoints(eastMapPoint, westMapPoint);
+        
+    CLLocationCoordinate2D centerLocation = _mapView.centerCoordinate;
+
+    NSDictionary *params = @{@"longitude": [NSString stringWithFormat:@"%f", centerLocation.longitude],
+                             @"latitude": [NSString stringWithFormat:@"%f", centerLocation.latitude],
+                             @"distance": [NSString stringWithFormat:@"%f", distance]};
+    
     MPWebAPIClient *httpClient = [MPWebAPIClient sharedClient];
     
     [(AppDelegate *)[[UIApplication sharedApplication] delegate] setNetworkActivityIndicatorVisible:YES];
     
     __weak MPMapViewController *weakSelf = self;
     
-    [httpClient getTrashLocationsWithParams:nil forSuccess:^(NSDictionary *json)
+    [httpClient getTrashLocationsWithParams:params forSuccess:^(NSDictionary *json)
     {
         [(AppDelegate *)[[UIApplication sharedApplication] delegate] setNetworkActivityIndicatorVisible:NO];
         
@@ -133,6 +148,8 @@ static CGFloat const kMetersPerMile = 1609.344;
     
     [_mapView removeOverlays:_overlayRouteArray];
     self.navigationItem.leftBarButtonItem = nil;
+    
+    [_mapView setCenterCoordinate:_mapView.userLocation.location.coordinate zoomLevel:12 animated:YES];
 }
 
 #pragma  mark - MKMapView delegate
@@ -168,11 +185,13 @@ static CGFloat const kMetersPerMile = 1609.344;
     [_mapView setRegion:viewRegion animated:YES];
 }
 
-- (void)mapView:(MKMapView *)mapView didUpdateUserLocation:(MKUserLocation *)userLocation NS_AVAILABLE(10_9, 4_0)
+- (void)mapView:(MKMapView *)mapView didUpdateUserLocation:(MKUserLocation *)userLocation
 {
-    NSLog(@"didUpdateUserLocation");
-
-//    [self requestNearTrashLocations];
+    if ( !_isInitialLocation && userLocation.location)
+    {
+        _isInitialLocation = YES;
+        [_mapView setCenterCoordinate:userLocation.location.coordinate zoomLevel:12 animated:YES];
+    }
 }
 
 - (void)mapView:(MKMapView *)mapView didSelectAnnotationView:(MKAnnotationView *)view NS_AVAILABLE(10_9, 4_0)
@@ -289,6 +308,8 @@ static CGFloat const kMetersPerMile = 1609.344;
             weakSelf.overlayRouteArray = overlayRouteArray;
             
             [weakSelf addCancelButton];
+            
+            [_mapView setCenterCoordinate:_mapView.userLocation.location.coordinate zoomLevel:20 animated:YES];
         }
         else
         {

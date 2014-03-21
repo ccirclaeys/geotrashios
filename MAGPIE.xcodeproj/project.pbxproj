@@ -26,6 +26,7 @@
 		A889528618D4F072004B30C8 /* MPWebAPIClient.m in Sources */ = {isa = PBXBuildFile; fileRef = A889528518D4F072004B30C8 /* MPWebAPIClient.m */; };
 		A889528918D4F3E1004B30C8 /* Trash.m in Sources */ = {isa = PBXBuildFile; fileRef = A889528818D4F3E1004B30C8 /* Trash.m */; };
 		A889529318D6D05A004B30C8 /* MPSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A889529218D6D05A004B30C8 /* MPSettingsViewController.m */; };
+		A8B421D018DB90A400F60B5C /* MKMapView+ZoomLevel.m in Sources */ = {isa = PBXBuildFile; fileRef = A8B421CF18DB90A400F60B5C /* MKMapView+ZoomLevel.m */; };
 		A8C9166B18D914010061BB66 /* MPTrashView.m in Sources */ = {isa = PBXBuildFile; fileRef = A8C9166A18D914010061BB66 /* MPTrashView.m */; };
 		A8C9166D18D9141A0061BB66 /* MPTrashView.xib in Resources */ = {isa = PBXBuildFile; fileRef = A8C9166C18D9141A0061BB66 /* MPTrashView.xib */; };
 /* End PBXBuildFile section */
@@ -70,6 +71,8 @@
 		A889528818D4F3E1004B30C8 /* Trash.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Trash.m; sourceTree = "<group>"; };
 		A889529118D6D05A004B30C8 /* MPSettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPSettingsViewController.h; sourceTree = "<group>"; };
 		A889529218D6D05A004B30C8 /* MPSettingsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPSettingsViewController.m; sourceTree = "<group>"; };
+		A8B421CE18DB90A400F60B5C /* MKMapView+ZoomLevel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MKMapView+ZoomLevel.h"; sourceTree = "<group>"; };
+		A8B421CF18DB90A400F60B5C /* MKMapView+ZoomLevel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MKMapView+ZoomLevel.m"; sourceTree = "<group>"; };
 		A8C9166918D914010061BB66 /* MPTrashView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPTrashView.h; sourceTree = "<group>"; };
 		A8C9166A18D914010061BB66 /* MPTrashView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPTrashView.m; sourceTree = "<group>"; };
 		A8C9166C18D9141A0061BB66 /* MPTrashView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MPTrashView.xib; sourceTree = "<group>"; };
@@ -136,6 +139,7 @@
 			children = (
 				A889525718D4EE55004B30C8 /* AppDelegate.h */,
 				A889525818D4EE55004B30C8 /* AppDelegate.m */,
+				A8B421CD18DB908400F60B5C /* Categories */,
 				A889528318D4F03D004B30C8 /* Network */,
 				A8C9166818D913BB0061BB66 /* Views */,
 				A889528A18D4FA83004B30C8 /* Models */,
@@ -206,6 +210,15 @@
 				A889528818D4F3E1004B30C8 /* Trash.m */,
 			);
 			name = Models;
+			sourceTree = "<group>";
+		};
+		A8B421CD18DB908400F60B5C /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				A8B421CE18DB90A400F60B5C /* MKMapView+ZoomLevel.h */,
+				A8B421CF18DB90A400F60B5C /* MKMapView+ZoomLevel.m */,
+			);
+			name = Categories;
 			sourceTree = "<group>";
 		};
 		A8C9166818D913BB0061BB66 /* Views */ = {
@@ -319,6 +332,7 @@
 				A889525918D4EE55004B30C8 /* AppDelegate.m in Sources */,
 				A8C9166B18D914010061BB66 /* MPTrashView.m in Sources */,
 				A889527918D4EE84004B30C8 /* MPMapViewController.m in Sources */,
+				A8B421D018DB90A400F60B5C /* MKMapView+ZoomLevel.m in Sources */,
 				A889528618D4F072004B30C8 /* MPWebAPIClient.m in Sources */,
 				A889525518D4EE55004B30C8 /* main.m in Sources */,
 				A889527F18D4EFFD004B30C8 /* CCHTTPAPIClient.m in Sources */,
