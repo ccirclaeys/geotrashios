@@ -8,8 +8,20 @@
 
 #import <UIKit/UIKit.h>
 
+@class MPStepView;
+@class MKRouteStep;
+
+@protocol MPStepViewDelegate <NSObject>
+
+- (void)didSelectStepView:(MPStepView*)stepView;
+
+@end
+
 @interface MPStepView : UIView
 
+@property (nonatomic, strong) MKRouteStep *routeStep;
+
 @property (nonatomic, strong) UILabel *stepLabel;
+@property (nonatomic, weak) id <MPStepViewDelegate> delegate;
 
 @end

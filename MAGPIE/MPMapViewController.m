@@ -13,20 +13,24 @@
 #import "AppDelegate.h"
 #import "MPSettingsViewController.h"
 #import "MPWrapperStepsView.h"
+#import "objc/runtime.h"
 
 static CGFloat const kMetersPerMile = 1609.344;
+
+static void *MPMapViewControllerAlertDestinationKey = "MPMapViewControllerAlertDestinationKey";
 
 @interface MPMapViewController ()
 
 @property (nonatomic, strong) MKMapView *mapView;
 
 @property (nonatomic, assign) BOOL isRouting;
-@property (nonatomic, strong) NSArray *overlayRouteArray;
+@property (nonatomic, strong) NSMutableArray *overlayRouteArray;
 
 @property (nonatomic, strong) NSMutableDictionary *trashDictionary;
 
 @property (nonatomic, strong) MPTrashView *currentTrashView;
 @property (nonatomic, strong) MPWrapperStepsView *wrapperStepsView;
+@property (nonatomic, assign) CLLocationCoordinate2D destinationCoordinate;
 
 @property (nonatomic, assign) BOOL isInitialLocation;
 
@@ -37,6 +41,7 @@ static CGFloat const kMetersPerMile = 1609.344;
 - (void)setup
 {
     _trashDictionary  = [NSMutableDictionary dictionary];
+    _overlayRouteArray = [NSMutableArray array];
 }
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
@@ -63,6 +68,8 @@ static CGFloat const kMetersPerMile = 1609.344;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    self.view.backgroundColor = [UIColor whiteColor];
     
     [self setupNavigationBar];
     
@@ -104,8 +111,6 @@ static CGFloat const kMetersPerMile = 1609.344;
     
     [(AppDelegate *)[[UIApplication sharedApplication] delegate] setNetworkActivityIndicatorVisible:YES];
     
-    __weak MPMapViewController *weakSelf = self;
-    
     [httpClient getTrashLocationsWithParams:params forSuccess:^(NSDictionary *json)
     {
         [(AppDelegate *)[[UIApplication sharedApplication] delegate] setNetworkActivityIndicatorVisible:NO];
@@ -118,10 +123,10 @@ static CGFloat const kMetersPerMile = 1609.344;
             {
                 Trash *trash = [[Trash alloc] initWithJson:object];
                 
-                if (![weakSelf.trashDictionary objectForKey:trash.name])
+                if (![_trashDictionary objectForKey:trash.name])
                 {
-                    [weakSelf addTrashToMap:trash];
-                    [weakSelf.trashDictionary setObject:trash forKey:trash.name];
+                    [self addTrashToMap:trash];
+                    [_trashDictionary setObject:trash forKey:trash.name];
                 }
             }
         }
@@ -200,6 +205,35 @@ static CGFloat const kMetersPerMile = 1609.344;
         _isInitialLocation = YES;
         [_mapView setCenterCoordinate:userLocation.location.coordinate zoomLevel:12 animated:YES];
     }
+    else
+    {
+        if (_isRouting)
+        {
+            CLLocation *locA = [[CLLocation alloc] initWithLatitude:userLocation.coordinate.latitude longitude:userLocation.coordinate.longitude];
+            CLLocation *locB = [[CLLocation alloc] initWithLatitude:_destinationCoordinate.latitude longitude:_destinationCoordinate.longitude];
+            
+            CLLocationDistance distance = ([locA distanceFromLocation:locB]) / 1000;
+            
+            if (distance <= 0.02f)
+            {
+                _isRouting = NO;
+                
+                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Arrived" message:@"You arrived at the destination!" delegate:self cancelButtonTitle:@"Ok" otherButtonTitles:nil];
+                
+                void (^block)(NSInteger) = ^(NSInteger buttonIndex) {
+                    [self cancelRoute];
+                };
+                
+                objc_setAssociatedObject(alertView,
+                                         MPMapViewControllerAlertDestinationKey,
+                                         block,
+                                         OBJC_ASSOCIATION_COPY);
+                
+                [alertView show];
+
+            }
+        }
+    }
 }
 
 - (void)mapView:(MKMapView *)mapView didSelectAnnotationView:(MKAnnotationView *)view NS_AVAILABLE(10_9, 4_0)
@@ -244,6 +278,17 @@ static CGFloat const kMetersPerMile = 1609.344;
     return nil;
 }
 
+//- (MKOverlayRenderer *)mapView:(MKMapView *)mapView rendererForOverlay:(id<MKOverlay>)overlay
+//{
+//    if ([overlay isKindOfClass:[MKPolyline class]]) {
+//    MKPolylineRenderer *renderer = [[MKPolylineRenderer alloc] initWithPolyline:overlay];
+//    renderer.strokeColor = [[UIColor blueColor] colorWithAlphaComponent:0.5];
+//    renderer.lineWidth = 4.f;
+//    return  renderer;
+//    }
+//    return nil;
+//}
+
 - (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated
 {
     [self requestNearTrashLocations];
@@ -276,57 +321,52 @@ static CGFloat const kMetersPerMile = 1609.344;
     
     request.requestsAlternateRoutes = NO;
     
-    MKDirections *direction = [[MKDirections alloc]initWithRequest:request];
-    
-    __weak MPMapViewController *weakSelf = self;
+    MKDirections *direction = [[MKDirections alloc] initWithRequest:request];
     
     [direction calculateDirectionsWithCompletionHandler:^(MKDirectionsResponse *response, NSError *error) {
         
-        NSLog(@"response = %@",response);
-        
         if (response)
         {
-            _isRouting = YES;
             
-            NSArray *arrRoutes = [response routes];
-            
-            NSMutableArray *overlayRouteArray = [NSMutableArray arrayWithCapacity:arrRoutes.count];
-            
-            [arrRoutes enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            @autoreleasepool {
                 
-                MKRoute *rout = obj;
+                _isRouting = YES;
                 
-                MKPolyline *line = [rout polyline];
-                [weakSelf.mapView addOverlay:line];
-                [overlayRouteArray addObject:line];
+                NSArray *arrRoutes = [response routes];
                 
-                NSLog(@"Rout Name : %@",rout.name);
-                NSLog(@"Total Distance (in Meters) :%f",rout.distance);
-                
-                NSArray *steps = [rout steps];
-                
-                NSLog(@"Total Steps : %ld",(unsigned long)[steps count]);
-                
-                [steps enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-                    NSLog(@"Rout Instruction : %@",[obj instructions]);
-                    NSLog(@"Rout Distance : %f",[obj distance]);
+                [arrRoutes enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                    
+                    MKRoute *rout = obj;
+                    
+                    MKPolyline *line = [rout polyline];
+                    [_mapView addOverlay:line];
+                    [_overlayRouteArray addObject:line];
+                    
+                    NSLog(@"Rout Name : %@",rout.name);
+                    NSLog(@"Total Distance (in Meters) :%f",rout.distance);
+                    
+                    NSArray *steps = [rout steps];
+                    
+                    NSLog(@"Total Steps : %ld",(unsigned long)[steps count]);
+                    
+                    [steps enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                        NSLog(@"Rout Instruction : %@",[obj instructions]);
+                        NSLog(@"Rout Distance : %f",[obj distance]);
+                    }];
+                    
+                    MPWrapperStepsView *wrapperStepsView = [[MPWrapperStepsView alloc] initWithNib];
+                    wrapperStepsView.frame = CGRectMake(0, self.view.bounds.size.height - wrapperStepsView.frame.size.height, wrapperStepsView.frame.size.width, wrapperStepsView.frame.size.height);
+                    [wrapperStepsView setupWithSteps:steps delegate:self];
+                    [self.view addSubview:wrapperStepsView];
+                    
+                    _wrapperStepsView = wrapperStepsView;
+                    _destinationCoordinate = ((MKRouteStep*)[steps lastObject]).polyline.coordinate;
+                    
                 }];
                 
-                MPWrapperStepsView *wrapperStepsView = [[MPWrapperStepsView alloc] initWithNib];
-                wrapperStepsView.frame = CGRectMake(0, weakSelf.view.bounds.size.height - wrapperStepsView.frame.size.height, wrapperStepsView.frame.size.width, wrapperStepsView.frame.size.height);
-                [wrapperStepsView setupWithSteps:steps];
-                [weakSelf.view addSubview:wrapperStepsView];
-                
-                weakSelf.wrapperStepsView = wrapperStepsView;
-                
-            }];
-            
-            weakSelf.overlayRouteArray = overlayRouteArray;
-            
-            [weakSelf addCancelButton];
-            
-            [_mapView setCenterCoordinate:_mapView.userLocation.location.coordinate zoomLevel:20 animated:YES];
-            
+                [self addCancelButton];
+                [_mapView setCenterCoordinate:_mapView.userLocation.location.coordinate zoomLevel:20 animated:YES];
+            }
             
         }
         else
@@ -337,6 +377,14 @@ static CGFloat const kMetersPerMile = 1609.344;
     }];
     
     [_mapView deselectAnnotation:trashView.annotationView.annotation animated:NO];
+}
+
+#pragma mark - UIAlertViewDelegate
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    void (^block)(NSInteger) = objc_getAssociatedObject(alertView, MPMapViewControllerAlertDestinationKey);
+    block(buttonIndex);
 }
 
 #pragma mark - Animations
@@ -381,6 +429,22 @@ static CGFloat const kMetersPerMile = 1609.344;
     [animation setTimingFunction:[CAMediaTimingFunction functionWithControlPoints:.34 :.01 :.69 :1.37]];
     [animation setValue:@"scaleDown" forKey:@"animationType"];
     return animation;
+}
+
+#pragma mark - MPWrapperStepsView delegate
+
+- (void)didSelectStepView:(MPStepView*)stepView;
+{
+    if (MKMapRectIsEmpty(stepView.routeStep.polyline.boundingMapRect))
+    {
+        [_mapView setRegion:MKCoordinateRegionMake(CLLocationCoordinate2DMake(stepView.routeStep.polyline.coordinate.latitude, stepView.routeStep.polyline.coordinate.longitude), _mapView.region.span) animated:YES];
+        return;
+    }
+    
+    [_mapView addOverlay:stepView.routeStep.polyline];
+    [_mapView setVisibleMapRect:stepView.routeStep.polyline.boundingMapRect animated:YES];
+    
+    [_overlayRouteArray addObject:stepView.routeStep.polyline];
 }
 
 #pragma mark - navigation controller

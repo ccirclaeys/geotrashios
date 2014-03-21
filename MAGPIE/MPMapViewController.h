@@ -10,8 +10,11 @@
 #import <MapKit/MapKit.h>
 
 #import "MPTrashView.h"
+#import "MPStepView.h"
 
 @interface MPMapViewController : UIViewController
-<MKMapViewDelegate, MPTrashViewDelegate>
+<MKMapViewDelegate, MPTrashViewDelegate, MPStepViewDelegate, UIAlertViewDelegate>
+
+//@property (nonatomic, weak) IBOutlet MKMapView *mapView;
 
 @end

@@ -7,11 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "MPStepView.h"
 
 @interface MPWrapperStepsView : UIView
 
 @property (nonatomic, weak) IBOutlet UIScrollView *scrollView;
 
 - (id)initWithNib;
-- (void)setupWithSteps:(NSArray*)steps;
+- (void)setupWithSteps:(NSArray*)steps delegate:(id<MPStepViewDelegate>)delegate;
+
 @end

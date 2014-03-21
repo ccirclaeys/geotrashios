@@ -6,9 +6,8 @@
 //  Copyright (c) 2014 Charles Circlaeys. All rights reserved.
 //
 
-#import "MPWrapperStepsView.h"
-#import "MPStepView.h"
 #import <MapKit/MapKit.h>
+#import "MPWrapperStepsView.h"
 
 @implementation MPWrapperStepsView
 
@@ -16,7 +15,7 @@
 {
     self = [super initWithFrame:frame];
     if (self) {
-        // Initialization code
+        [self setup];
     }
     return self;
 }
@@ -27,20 +26,29 @@
     self = [[[NSBundle mainBundle] loadNibNamed:className owner:self options:nil] objectAtIndex:0];
     if (self)
     {
-        //[self setup];
+        [self setup];
     }
     return self;
 }
 
-- (void)setupWithSteps:(NSArray*)steps
+- (void)setup
 {
+    self.userInteractionEnabled = YES;
+    _scrollView.userInteractionEnabled = YES;
     
+    [self setBackgroundColor:[[UIColor whiteColor] colorWithAlphaComponent:0.5]];
+}
+
+- (void)setupWithSteps:(NSArray*)steps delegate:(id<MPStepViewDelegate>)delegate
+{
     _scrollView.contentSize = CGSizeMake(steps.count * _scrollView.frame.size.width, _scrollView.frame.size.height);
     __block CGFloat offsetX = 0;
     
     [steps enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop){
        
         MPStepView *stepView = [[MPStepView alloc] initWithFrame:CGRectMake(offsetX, 0, _scrollView.frame.size.width, _scrollView.frame.size.height)];
+        stepView.routeStep = obj;
+        stepView.delegate = delegate;
         stepView.stepLabel.text = [obj instructions];
         [_scrollView addSubview:stepView];
         

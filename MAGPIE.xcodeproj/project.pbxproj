@@ -30,6 +30,7 @@
 		A8B421D218DC09B700F60B5C /* MPWrapperStepsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = A8B421D118DC09B700F60B5C /* MPWrapperStepsView.xib */; };
 		A8B421D518DC0A9C00F60B5C /* MPStepView.m in Sources */ = {isa = PBXBuildFile; fileRef = A8B421D418DC0A9C00F60B5C /* MPStepView.m */; };
 		A8B421D818DC0AEB00F60B5C /* MPWrapperStepsView.m in Sources */ = {isa = PBXBuildFile; fileRef = A8B421D718DC0AEB00F60B5C /* MPWrapperStepsView.m */; };
+		A8B421DA18DCE9BB00F60B5C /* Main_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A8B421D918DCE9BB00F60B5C /* Main_iPhone.storyboard */; };
 		A8C9166B18D914010061BB66 /* MPTrashView.m in Sources */ = {isa = PBXBuildFile; fileRef = A8C9166A18D914010061BB66 /* MPTrashView.m */; };
 		A8C9166D18D9141A0061BB66 /* MPTrashView.xib in Resources */ = {isa = PBXBuildFile; fileRef = A8C9166C18D9141A0061BB66 /* MPTrashView.xib */; };
 /* End PBXBuildFile section */
@@ -81,6 +82,7 @@
 		A8B421D418DC0A9C00F60B5C /* MPStepView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPStepView.m; sourceTree = "<group>"; };
 		A8B421D618DC0AEB00F60B5C /* MPWrapperStepsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPWrapperStepsView.h; sourceTree = "<group>"; };
 		A8B421D718DC0AEB00F60B5C /* MPWrapperStepsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPWrapperStepsView.m; sourceTree = "<group>"; };
+		A8B421D918DCE9BB00F60B5C /* Main_iPhone.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main_iPhone.storyboard; sourceTree = "<group>"; };
 		A8C9166918D914010061BB66 /* MPTrashView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPTrashView.h; sourceTree = "<group>"; };
 		A8C9166A18D914010061BB66 /* MPTrashView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPTrashView.m; sourceTree = "<group>"; };
 		A8C9166C18D9141A0061BB66 /* MPTrashView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MPTrashView.xib; sourceTree = "<group>"; };
@@ -145,6 +147,7 @@
 		A889524E18D4EE55004B30C8 /* MAGPIE */ = {
 			isa = PBXGroup;
 			children = (
+				A8B421D918DCE9BB00F60B5C /* Main_iPhone.storyboard */,
 				A889525718D4EE55004B30C8 /* AppDelegate.h */,
 				A889525818D4EE55004B30C8 /* AppDelegate.m */,
 				A8B421CD18DB908400F60B5C /* Categories */,
@@ -321,6 +324,7 @@
 			files = (
 				A889525318D4EE55004B30C8 /* InfoPlist.strings in Resources */,
 				A889525B18D4EE55004B30C8 /* Images.xcassets in Resources */,
+				A8B421DA18DCE9BB00F60B5C /* Main_iPhone.storyboard in Resources */,
 				A8C9166D18D9141A0061BB66 /* MPTrashView.xib in Resources */,
 				A8B421D218DC09B700F60B5C /* MPWrapperStepsView.xib in Resources */,
 			);

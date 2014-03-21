@@ -14,6 +14,9 @@
 {
     _stepLabel = [[UILabel alloc] initWithFrame:self.bounds];
     _stepLabel.textAlignment = NSTextAlignmentCenter;
+    _stepLabel.numberOfLines = 0;
+    _stepLabel.lineBreakMode = NSLineBreakByWordWrapping;
+    _stepLabel.font = [UIFont fontWithName:@"Helvetica" size:(15.0)];
     [self addSubview:_stepLabel];
 }
 
@@ -25,6 +28,12 @@
     }
     return self;
 }
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    [self.delegate didSelectStepView:self];
+}
+
 
 /*
 // Only override drawRect: if you perform custom drawing.

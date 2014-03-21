@@ -19,18 +19,8 @@
     self.window.backgroundColor = [UIColor whiteColor];
     [self.window makeKeyAndVisible];
     
-//    NSMutableArray *tabItems = [[NSMutableArray alloc] initWithCapacity:2];
-    
     MPMapViewController *mapViewController = [[MPMapViewController alloc] init];
     UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:mapViewController];
-    
-//    [tabItems addObject:navController];
-    
-//    MPSettingsViewController *settingsViewController = [[MPSettingsViewController alloc] init];
-//    [tabItems addObject:settingsViewController];
-    
-//    UITabBarController *tabBarController = [[UITabBarController alloc] init];
-//    tabBarController.viewControllers = tabItems;
     
     self.window.rootViewController = navController;
     
