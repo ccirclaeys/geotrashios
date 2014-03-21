@@ -11,6 +11,8 @@
 #import "MPWebAPIClient.h"
 #import "Trash.h"
 #import "AppDelegate.h"
+#import "MPSettingsViewController.h"
+#import "MPWrapperStepsView.h"
 
 static CGFloat const kMetersPerMile = 1609.344;
 
@@ -24,6 +26,7 @@ static CGFloat const kMetersPerMile = 1609.344;
 @property (nonatomic, strong) NSMutableDictionary *trashDictionary;
 
 @property (nonatomic, strong) MPTrashView *currentTrashView;
+@property (nonatomic, strong) MPWrapperStepsView *wrapperStepsView;
 
 @property (nonatomic, assign) BOOL isInitialLocation;
 
@@ -61,6 +64,8 @@ static CGFloat const kMetersPerMile = 1609.344;
 {
     [super viewDidLoad];
     
+    [self setupNavigationBar];
+    
     _mapView = [[MKMapView alloc] initWithFrame:self.view.bounds];
     _mapView.delegate = self;
     [self.view addSubview:_mapView];
@@ -88,7 +93,7 @@ static CGFloat const kMetersPerMile = 1609.344;
     MKMapPoint westMapPoint = MKMapPointMake(MKMapRectGetMaxX(mRect), MKMapRectGetMidY(mRect));
     
     CLLocationDistance distance = MKMetersBetweenMapPoints(eastMapPoint, westMapPoint);
-        
+    
     CLLocationCoordinate2D centerLocation = _mapView.centerCoordinate;
 
     NSDictionary *params = @{@"longitude": [NSString stringWithFormat:@"%f", centerLocation.longitude],
@@ -148,6 +153,9 @@ static CGFloat const kMetersPerMile = 1609.344;
     
     [_mapView removeOverlays:_overlayRouteArray];
     self.navigationItem.leftBarButtonItem = nil;
+    
+    [_wrapperStepsView removeFromSuperview];
+    _wrapperStepsView = nil;
     
     [_mapView setCenterCoordinate:_mapView.userLocation.location.coordinate zoomLevel:12 animated:YES];
 }
@@ -303,6 +311,14 @@ static CGFloat const kMetersPerMile = 1609.344;
                     NSLog(@"Rout Instruction : %@",[obj instructions]);
                     NSLog(@"Rout Distance : %f",[obj distance]);
                 }];
+                
+                MPWrapperStepsView *wrapperStepsView = [[MPWrapperStepsView alloc] initWithNib];
+                wrapperStepsView.frame = CGRectMake(0, weakSelf.view.bounds.size.height - wrapperStepsView.frame.size.height, wrapperStepsView.frame.size.width, wrapperStepsView.frame.size.height);
+                [wrapperStepsView setupWithSteps:steps];
+                [weakSelf.view addSubview:wrapperStepsView];
+                
+                weakSelf.wrapperStepsView = wrapperStepsView;
+                
             }];
             
             weakSelf.overlayRouteArray = overlayRouteArray;
@@ -310,6 +326,8 @@ static CGFloat const kMetersPerMile = 1609.344;
             [weakSelf addCancelButton];
             
             [_mapView setCenterCoordinate:_mapView.userLocation.location.coordinate zoomLevel:20 animated:YES];
+            
+            
         }
         else
         {
@@ -367,10 +385,24 @@ static CGFloat const kMetersPerMile = 1609.344;
 
 #pragma mark - navigation controller
 
+- (void)setupNavigationBar
+{
+    UIBarButtonItem *settingsBarButton = [[UIBarButtonItem alloc] initWithTitle:@"Settings" style:UIBarButtonItemStyleBordered target:self action:@selector(goToSettingsView)];
+    self.navigationItem.rightBarButtonItem = settingsBarButton;
+}
+
 - (void)addCancelButton
 {
-    UIBarButtonItem *customBarButton = [[UIBarButtonItem alloc] initWithTitle:@"Cancel" style:UIBarButtonItemStyleBordered target:self action:@selector(cancelRoute)];
-    self.navigationItem.leftBarButtonItem = customBarButton;
+    UIBarButtonItem *cancelBarButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelRoute)];
+    self.navigationItem.leftBarButtonItem = cancelBarButton;
+}
+
+#pragma mark - transition controllers
+
+- (void)goToSettingsView
+{
+    MPSettingsViewController *settingsViewController = [[MPSettingsViewController alloc] init];
+    [self.navigationController pushViewController:settingsViewController animated:YES];
 }
 
 @end

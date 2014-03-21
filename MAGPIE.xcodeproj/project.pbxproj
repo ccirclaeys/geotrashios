@@ -27,6 +27,9 @@
 		A889528918D4F3E1004B30C8 /* Trash.m in Sources */ = {isa = PBXBuildFile; fileRef = A889528818D4F3E1004B30C8 /* Trash.m */; };
 		A889529318D6D05A004B30C8 /* MPSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A889529218D6D05A004B30C8 /* MPSettingsViewController.m */; };
 		A8B421D018DB90A400F60B5C /* MKMapView+ZoomLevel.m in Sources */ = {isa = PBXBuildFile; fileRef = A8B421CF18DB90A400F60B5C /* MKMapView+ZoomLevel.m */; };
+		A8B421D218DC09B700F60B5C /* MPWrapperStepsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = A8B421D118DC09B700F60B5C /* MPWrapperStepsView.xib */; };
+		A8B421D518DC0A9C00F60B5C /* MPStepView.m in Sources */ = {isa = PBXBuildFile; fileRef = A8B421D418DC0A9C00F60B5C /* MPStepView.m */; };
+		A8B421D818DC0AEB00F60B5C /* MPWrapperStepsView.m in Sources */ = {isa = PBXBuildFile; fileRef = A8B421D718DC0AEB00F60B5C /* MPWrapperStepsView.m */; };
 		A8C9166B18D914010061BB66 /* MPTrashView.m in Sources */ = {isa = PBXBuildFile; fileRef = A8C9166A18D914010061BB66 /* MPTrashView.m */; };
 		A8C9166D18D9141A0061BB66 /* MPTrashView.xib in Resources */ = {isa = PBXBuildFile; fileRef = A8C9166C18D9141A0061BB66 /* MPTrashView.xib */; };
 /* End PBXBuildFile section */
@@ -73,6 +76,11 @@
 		A889529218D6D05A004B30C8 /* MPSettingsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPSettingsViewController.m; sourceTree = "<group>"; };
 		A8B421CE18DB90A400F60B5C /* MKMapView+ZoomLevel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MKMapView+ZoomLevel.h"; sourceTree = "<group>"; };
 		A8B421CF18DB90A400F60B5C /* MKMapView+ZoomLevel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MKMapView+ZoomLevel.m"; sourceTree = "<group>"; };
+		A8B421D118DC09B700F60B5C /* MPWrapperStepsView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MPWrapperStepsView.xib; sourceTree = "<group>"; };
+		A8B421D318DC0A9C00F60B5C /* MPStepView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPStepView.h; sourceTree = "<group>"; };
+		A8B421D418DC0A9C00F60B5C /* MPStepView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPStepView.m; sourceTree = "<group>"; };
+		A8B421D618DC0AEB00F60B5C /* MPWrapperStepsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPWrapperStepsView.h; sourceTree = "<group>"; };
+		A8B421D718DC0AEB00F60B5C /* MPWrapperStepsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPWrapperStepsView.m; sourceTree = "<group>"; };
 		A8C9166918D914010061BB66 /* MPTrashView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPTrashView.h; sourceTree = "<group>"; };
 		A8C9166A18D914010061BB66 /* MPTrashView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPTrashView.m; sourceTree = "<group>"; };
 		A8C9166C18D9141A0061BB66 /* MPTrashView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MPTrashView.xib; sourceTree = "<group>"; };
@@ -227,6 +235,11 @@
 				A8C9166918D914010061BB66 /* MPTrashView.h */,
 				A8C9166A18D914010061BB66 /* MPTrashView.m */,
 				A8C9166C18D9141A0061BB66 /* MPTrashView.xib */,
+				A8B421D618DC0AEB00F60B5C /* MPWrapperStepsView.h */,
+				A8B421D718DC0AEB00F60B5C /* MPWrapperStepsView.m */,
+				A8B421D118DC09B700F60B5C /* MPWrapperStepsView.xib */,
+				A8B421D318DC0A9C00F60B5C /* MPStepView.h */,
+				A8B421D418DC0A9C00F60B5C /* MPStepView.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -309,6 +322,7 @@
 				A889525318D4EE55004B30C8 /* InfoPlist.strings in Resources */,
 				A889525B18D4EE55004B30C8 /* Images.xcassets in Resources */,
 				A8C9166D18D9141A0061BB66 /* MPTrashView.xib in Resources */,
+				A8B421D218DC09B700F60B5C /* MPWrapperStepsView.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -330,9 +344,11 @@
 				A889528918D4F3E1004B30C8 /* Trash.m in Sources */,
 				A889529318D6D05A004B30C8 /* MPSettingsViewController.m in Sources */,
 				A889525918D4EE55004B30C8 /* AppDelegate.m in Sources */,
+				A8B421D518DC0A9C00F60B5C /* MPStepView.m in Sources */,
 				A8C9166B18D914010061BB66 /* MPTrashView.m in Sources */,
 				A889527918D4EE84004B30C8 /* MPMapViewController.m in Sources */,
 				A8B421D018DB90A400F60B5C /* MKMapView+ZoomLevel.m in Sources */,
+				A8B421D818DC0AEB00F60B5C /* MPWrapperStepsView.m in Sources */,
 				A889528618D4F072004B30C8 /* MPWebAPIClient.m in Sources */,
 				A889525518D4EE55004B30C8 /* main.m in Sources */,
 				A889527F18D4EFFD004B30C8 /* CCHTTPAPIClient.m in Sources */,
